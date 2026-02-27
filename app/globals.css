@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --ink-950: #0f172a;
@@ -11,13 +13,6 @@
   --accent-orange: #f97316;
   --bg-1: #f4f8ff;
   --bg-2: #fff7ed;
-}
-
-@theme inline {
-  --color-background: var(--bg-1);
-  --color-foreground: var(--ink-950);
-  --font-sans: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
-  --font-mono: "Menlo", "Consolas", "SFMono-Regular", monospace;
 }
 
 *,
