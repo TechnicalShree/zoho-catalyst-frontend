@@ -1,13 +1,13 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useMemo, useState, useEffect } from "react";
 import { HeroSection } from "../organisms/HeroSection";
 import { OrganizerPanel } from "../organisms/OrganizerPanel";
 import { RegistrationPanel } from "../organisms/RegistrationPanel";
 import { CheckinPanel } from "../organisms/CheckinPanel";
 import { RosterSection } from "../organisms/RosterSection";
 import { DEFAULT_EVENT_STARTS_AT, INITIAL_TENANTS } from "../../lib/doorflow/constants";
-import { createEvent as createEventApi } from "../../lib/doorflow/api";
+import { createEvent as createEventApi, getEvents as getEventsApi } from "../../lib/doorflow/api";
 import {
   CheckinRecord,
   EventDraft,
@@ -48,6 +48,72 @@ export default function DoorFlowTemplate() {
     null,
   );
   const [checkinNotice, setCheckinNotice] = useState<Notice | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    async function fetchServerEvents() {
+      try {
+        const rawList = await getEventsApi();
+        if (!active) return;
+
+        const validEvents = (rawList as any[]).map((row: any) => {
+          const ev = row.Events || row;
+          return {
+            id: String(ev.ROWID || ev.id || createId("evt")),
+            slug: String(ev.slug || ""),
+            name: String(ev.name || "Untitled Event"),
+            startsAt: String(ev.starts_at || DEFAULT_EVENT_STARTS_AT),
+            venue: String(ev.venue || "TBD"),
+            capacity: Number(ev.capacity) || 120,
+            createdAt: String(ev.created_at || ev.CREATEDTIME || new Date().toISOString()),
+            attendees: [],
+            checkins: [],
+            _tenantId: String(ev.created_by_user_id || INITIAL_TENANTS[0].id)
+          };
+        });
+
+        setTenants((currentTenants) => {
+          return currentTenants.map((tenant) => {
+            // Find events belonging to this tenant
+            const remoteForTenant = validEvents.filter(e => e._tenantId === tenant.id);
+            const remoteEventsMapped = remoteForTenant.map(e => {
+              const { _tenantId, ...rest } = e;
+              return rest as EventRecord;
+            });
+
+            // For now, if the server returns events for this tenant, we append them 
+            // to existing local / template events, avoiding duplicates by ID or slug if we want,
+            // or we just replace the tenant's events entirely.
+            // Replacing entirely makes it 100% server-driven. Let's merge server + initial data 
+            // so the initial demo data stays if server has nothing, otherwise show server items + initial.
+            // Best is to use server events, and fallback to initial if none, or mix them.
+            // Let's mix them but deduplicate by ID:
+            const merged = [...remoteEventsMapped];
+            const existingIds = new Set(remoteEventsMapped.map(x => x.id));
+            const existingSlugs = new Set(remoteEventsMapped.map(x => x.slug));
+
+            for (const initialEv of tenant.events) {
+              if (!existingIds.has(initialEv.id) && !existingSlugs.has(initialEv.slug)) {
+                merged.push(initialEv);
+              }
+            }
+
+            // sort by newest first
+            merged.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+            return {
+              ...tenant,
+              events: merged
+            };
+          });
+        });
+      } catch (err) {
+        console.error("Failed to load events", err);
+      }
+    }
+    fetchServerEvents();
+    return () => { active = false; };
+  }, []);
 
   const activeTenant = useMemo(
     () => tenants.find((tenant) => tenant.id === activeTenantId),
