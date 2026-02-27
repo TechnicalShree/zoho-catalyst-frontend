@@ -1,5 +1,16 @@
 import { NextResponse } from "next/server";
 
+const FALLBACK_CATALYST_BASE_URL =
+    "https://catalyst-hackathon-915650487.development.catalystserverless.com";
+
+function getCatalystBaseUrl(): string {
+    return (
+        process.env.CATALYST_BASE_URL ??
+        process.env.NEXT_PUBLIC_CATALYST_BASE_URL ??
+        FALLBACK_CATALYST_BASE_URL
+    );
+}
+
 function buildCreateEventUrl(baseUrl: string): string {
     return `${baseUrl.replace(/\/+$/, "")}/event/create`;
 }
@@ -16,19 +27,7 @@ export async function POST(request: Request) {
         );
     }
 
-    const baseUrl =
-        process.env.CATALYST_BASE_URL ??
-        process.env.NEXT_PUBLIC_CATALYST_BASE_URL;
-    if (!baseUrl) {
-        return NextResponse.json(
-            {
-                message:
-                    "Missing CATALYST_BASE_URL or NEXT_PUBLIC_CATALYST_BASE_URL environment variable.",
-            },
-            { status: 500 },
-        );
-    }
-
+    const baseUrl = getCatalystBaseUrl();
     const endpoint = buildCreateEventUrl(baseUrl);
 
     try {
@@ -64,10 +63,12 @@ export async function POST(request: Request) {
         }
 
         return NextResponse.json({ ok: true, upstream: upstreamBody });
-    } catch {
+    } catch (err) {
+        const detail = err instanceof Error ? err.message : "Unknown error";
         return NextResponse.json(
-            { message: "Unable to reach Catalyst event/create API." },
+            { message: "Unable to reach Catalyst event/create API.", detail },
             { status: 502 },
         );
     }
 }
+
