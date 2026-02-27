@@ -31,7 +31,7 @@ NEXT_PUBLIC_CATALYST_BASE_URL=https://<your-domain>
 The app appends `/create_event` automatically.
 
 The create call sends:
-`name`, `starts_at`.
+`slug`, `name`, `starts_at`, `capacity`, `banner_object_url`, `created_by_user_id`, `created_at`.
 
 ## Learn More
 

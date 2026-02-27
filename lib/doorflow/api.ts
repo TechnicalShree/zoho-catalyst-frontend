@@ -1,6 +1,11 @@
 export type CreateEventPayload = {
+  slug: string;
   name: string;
   starts_at: string;
+  capacity: number;
+  banner_object_url: string;
+  created_by_user_id: string;
+  created_at: string;
 };
 
 function buildCreateEventUrl(baseUrl: string): string {

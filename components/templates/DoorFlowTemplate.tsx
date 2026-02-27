@@ -199,8 +199,13 @@ export default function DoorFlowTemplate() {
     setIsCreatingEvent(true);
     try {
       await createEventApi({
+        slug: nextEvent.slug,
         name: nextEvent.name,
         starts_at: toCatalystStartsAt(nextEvent.startsAt),
+        capacity: nextEvent.capacity,
+        banner_object_url: "https://example.com/banner.jpg",
+        created_by_user_id: activeTenant.id,
+        created_at: nextEvent.createdAt,
       });
     } catch (error) {
       const message =
