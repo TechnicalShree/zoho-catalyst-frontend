@@ -132,6 +132,14 @@ h3,
   transform: translateY(0);
 }
 
+.cta-button:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.22);
+  opacity: 0.72;
+  transform: none;
+  box-shadow: none;
+}
+
 .orb {
   position: absolute;
   border-radius: 9999px;

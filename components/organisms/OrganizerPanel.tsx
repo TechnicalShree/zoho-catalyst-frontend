@@ -8,7 +8,8 @@ import { EventDraft, EventRecord, Notice } from "../../lib/doorflow/types";
 type OrganizerPanelProps = {
   eventDraft: EventDraft;
   onEventDraftChange: (field: keyof EventDraft, value: string | number) => void;
-  onCreateEvent: (event: FormEvent<HTMLFormElement>) => void;
+  onCreateEvent: (event: FormEvent<HTMLFormElement>) => void | Promise<void>;
+  isCreatingEvent: boolean;
   eventNotice: Notice | null;
   activeTenantShortCode?: string;
   events: EventRecord[];
@@ -20,6 +21,7 @@ export function OrganizerPanel({
   eventDraft,
   onEventDraftChange,
   onCreateEvent,
+  isCreatingEvent,
   eventNotice,
   activeTenantShortCode,
   events,
@@ -75,8 +77,12 @@ export function OrganizerPanel({
           />
         </div>
 
-        <PrimaryButton className="w-full sm:w-auto" type="submit">
-          Create event
+        <PrimaryButton
+          className="w-full sm:w-auto"
+          type="submit"
+          disabled={isCreatingEvent}
+        >
+          {isCreatingEvent ? "Creating..." : "Create event"}
         </PrimaryButton>
       </form>
 

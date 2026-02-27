@@ -20,6 +20,16 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Catalyst create_event API
+
+The organizer form calls `POST /api/create-event`, which proxies to your Catalyst API Gateway `create_event` endpoint.
+
+Optionally set an endpoint URL with:
+
+```bash
+CATALYST_CREATE_EVENT_URL=https://<your-domain>/create_event
+```
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

@@ -7,6 +7,7 @@ import { RegistrationPanel } from "../organisms/RegistrationPanel";
 import { CheckinPanel } from "../organisms/CheckinPanel";
 import { RosterSection } from "../organisms/RosterSection";
 import { DEFAULT_EVENT_STARTS_AT, INITIAL_TENANTS } from "../../lib/doorflow/constants";
+import { createEvent as createEventApi } from "../../lib/doorflow/api";
 import {
   CheckinRecord,
   EventDraft,
@@ -41,6 +42,7 @@ export default function DoorFlowTemplate() {
   });
   const [attendeeSearch, setAttendeeSearch] = useState("");
   const [checkinCode, setCheckinCode] = useState("");
+  const [isCreatingEvent, setIsCreatingEvent] = useState(false);
 
   const [eventNotice, setEventNotice] = useState<Notice | null>(null);
   const [registrationNotice, setRegistrationNotice] = useState<Notice | null>(
@@ -131,7 +133,7 @@ export default function DoorFlowTemplate() {
     }));
   }
 
-  function handleCreateEvent(event: FormEvent<HTMLFormElement>) {
+  async function handleCreateEvent(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!activeTenant) {
       return;
@@ -177,6 +179,39 @@ export default function DoorFlowTemplate() {
       attendees: [],
       checkins: [],
     };
+
+    setIsCreatingEvent(true);
+    try {
+      await createEventApi({
+        tenant: {
+          id: activeTenant.id,
+          name: activeTenant.name,
+          shortCode: activeTenant.shortCode,
+          city: activeTenant.city,
+        },
+        event: {
+          id: nextEvent.id,
+          name: nextEvent.name,
+          slug: nextEvent.slug,
+          startsAt: nextEvent.startsAt,
+          venue: nextEvent.venue,
+          capacity: nextEvent.capacity,
+          createdAt: nextEvent.createdAt,
+        },
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Unable to create event through Catalyst API.";
+      setEventNotice({
+        tone: "error",
+        message,
+      });
+      return;
+    } finally {
+      setIsCreatingEvent(false);
+    }
 
     setTenants((current) =>
       current.map((tenant) =>
@@ -385,6 +420,7 @@ export default function DoorFlowTemplate() {
           eventDraft={eventDraft}
           onEventDraftChange={handleEventDraftChange}
           onCreateEvent={handleCreateEvent}
+          isCreatingEvent={isCreatingEvent}
           eventNotice={eventNotice}
           activeTenantShortCode={activeTenant?.shortCode}
           events={activeTenant?.events ?? []}
