@@ -64,15 +64,9 @@ export function OrganizerPanel({
           <InputField
             label="Starts at"
             type="datetime-local"
+            wrapperClassName="md:col-span-2"
             value={eventDraft.startsAt}
             onChange={(event) => onEventDraftChange("startsAt", event.target.value)}
-            required
-          />
-          <InputField
-            label="Venue"
-            value={eventDraft.venue}
-            onChange={(event) => onEventDraftChange("venue", event.target.value)}
-            placeholder="Main Hall"
             required
           />
         </div>

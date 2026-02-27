@@ -48,7 +48,6 @@ export type EventDraft = {
   name: string;
   slug: string;
   startsAt: string;
-  venue: string;
   capacity: number;
 };
 

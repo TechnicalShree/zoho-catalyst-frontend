@@ -33,7 +33,6 @@ export default function DoorFlowTemplate() {
     name: "",
     slug: "",
     startsAt: DEFAULT_EVENT_STARTS_AT,
-    venue: "",
     capacity: 120,
   });
   const [registrationDraft, setRegistrationDraft] = useState<RegistrationDraft>({
@@ -156,10 +155,10 @@ export default function DoorFlowTemplate() {
     }
 
     const slug = normalizeSlug(eventDraft.slug || eventDraft.name);
-    if (!eventDraft.name.trim() || !slug || !eventDraft.venue.trim()) {
+    if (!eventDraft.name.trim() || !slug) {
       setEventNotice({
         tone: "error",
-        message: "Name, venue, and a valid slug are required.",
+        message: "Name and a valid slug are required.",
       });
       return;
     }
@@ -189,7 +188,7 @@ export default function DoorFlowTemplate() {
       slug,
       name: eventDraft.name.trim(),
       startsAt: eventDraft.startsAt,
-      venue: eventDraft.venue.trim(),
+      venue: activeTenant.city,
       capacity,
       createdAt: new Date().toISOString(),
       attendees: [],
@@ -233,7 +232,6 @@ export default function DoorFlowTemplate() {
       name: "",
       slug: "",
       startsAt: DEFAULT_EVENT_STARTS_AT,
-      venue: "",
       capacity: 120,
     });
     setEventNotice({
