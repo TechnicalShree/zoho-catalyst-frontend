@@ -6,6 +6,7 @@ import { OrganizerPanel } from "../organisms/OrganizerPanel";
 import { RegistrationPanel } from "../organisms/RegistrationPanel";
 import { CheckinPanel } from "../organisms/CheckinPanel";
 import { RosterSection } from "../organisms/RosterSection";
+import { CatalystEmbeddedAuth } from "../organisms/CatalystEmbeddedAuth";
 import { DEFAULT_EVENT_STARTS_AT, INITIAL_TENANTS } from "../../lib/doorflow/constants";
 import {
   CheckinRecord,
@@ -369,6 +370,8 @@ export default function DoorFlowTemplate() {
         <div className="orb orb-one" />
         <div className="orb orb-two" />
       </div>
+
+      <CatalystEmbeddedAuth />
 
       <HeroSection
         activeTenantShortCode={activeTenant?.shortCode}
