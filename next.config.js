@@ -1,15 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    async rewrites() {
-        return [
-            {
-                source: "/api/event/create",
-                destination:
-                    "https://catalyst-hackathon-915650487.development.catalystserverless.com/event/create",
-            },
-        ];
-    },
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination:
+          "https://catalyst-hackathon-915650487.development.catalystserverless.com/:path*",
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;
-
