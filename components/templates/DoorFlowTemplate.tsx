@@ -106,6 +106,22 @@ export default function DoorFlowTemplate() {
     : 0;
   const totalEventsForTenant = activeTenant?.events.length ?? 0;
 
+  function toCatalystStartsAt(value: string): string {
+    if (!value) {
+      return value;
+    }
+
+    if (/[zZ]$|[+-]\d{2}:\d{2}$/.test(value)) {
+      return value;
+    }
+
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) {
+      return `${value}:00Z`;
+    }
+
+    return value;
+  }
+
   function handleTenantChange(tenantId: string) {
     setActiveTenantId(tenantId);
     setEventNotice(null);
@@ -183,21 +199,11 @@ export default function DoorFlowTemplate() {
     setIsCreatingEvent(true);
     try {
       await createEventApi({
-        tenant: {
-          id: activeTenant.id,
-          name: activeTenant.name,
-          shortCode: activeTenant.shortCode,
-          city: activeTenant.city,
-        },
-        event: {
-          id: nextEvent.id,
-          name: nextEvent.name,
-          slug: nextEvent.slug,
-          startsAt: nextEvent.startsAt,
-          venue: nextEvent.venue,
-          capacity: nextEvent.capacity,
-          createdAt: nextEvent.createdAt,
-        },
+        name: nextEvent.name,
+        starts_at: toCatalystStartsAt(nextEvent.startsAt),
+        capacity: nextEvent.capacity,
+        banner_object_url: "https://example.com/banner.jpg",
+        created_by_user_id: "user_123",
       });
     } catch (error) {
       const message =

@@ -1,21 +1,9 @@
-type EventApiPayload = {
-  id: string;
-  name: string;
-  slug: string;
-  startsAt: string;
-  venue: string;
-  capacity: number;
-  createdAt: string;
-};
-
 export type CreateEventPayload = {
-  tenant: {
-    id: string;
-    name: string;
-    shortCode: string;
-    city: string;
-  };
-  event: EventApiPayload;
+  name: string;
+  starts_at: string;
+  capacity: number;
+  banner_object_url: string;
+  created_by_user_id: string;
 };
 
 function getErrorMessage(value: unknown): string | null {

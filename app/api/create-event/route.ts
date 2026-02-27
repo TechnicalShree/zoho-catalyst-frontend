@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
 
-const DEFAULT_CATALYST_CREATE_EVENT_URL =
-  "https://catalyst-hackathon-915650487.development.catalystserverless.com/create_event";
-
 export async function POST(request: Request) {
   let payload: unknown;
 
@@ -15,10 +12,13 @@ export async function POST(request: Request) {
     );
   }
 
-  const endpoint =
-    process.env.CATALYST_CREATE_EVENT_URL ??
-    process.env.NEXT_PUBLIC_CATALYST_CREATE_EVENT_URL ??
-    DEFAULT_CATALYST_CREATE_EVENT_URL;
+  const endpoint = process.env.CATALYST_CREATE_EVENT_URL;
+  if (!endpoint) {
+    return NextResponse.json(
+      { message: "Missing CATALYST_CREATE_EVENT_URL environment variable." },
+      { status: 500 },
+    );
+  }
 
   try {
     const upstreamResponse = await fetch(endpoint, {
