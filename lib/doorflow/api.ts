@@ -9,7 +9,7 @@ export type CreateEventPayload = {
 };
 
 function buildCreateEventUrl(baseUrl: string): string {
-  return `${baseUrl.replace(/\/+$/, "")}/create_event`;
+  return `${baseUrl.replace(/\/+$/, "")}/event/create`;
 }
 
 function getErrorMessage(value: unknown): string | null {
@@ -27,7 +27,9 @@ function getErrorMessage(value: unknown): string | null {
 
 export async function createEvent(payload: CreateEventPayload): Promise<void> {
   const baseUrl = process.env.NEXT_PUBLIC_CATALYST_BASE_URL;
-  const endpoint = baseUrl ? buildCreateEventUrl(baseUrl) : "/api/create-event";
+  const endpoint = baseUrl
+    ? buildCreateEventUrl(baseUrl)
+    : "https://catalyst-hackathon-915650487.development.catalystserverless.com/event/create";
 
   const response = await fetch(endpoint, {
     method: "POST",
