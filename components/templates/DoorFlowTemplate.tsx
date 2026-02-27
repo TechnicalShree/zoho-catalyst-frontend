@@ -22,12 +22,39 @@ import {
   normalizeSlug,
 } from "../../lib/doorflow/utils";
 
-export default function DoorFlowTemplate() {
-  const [tenants, setTenants] = useState<TenantRecord[]>(INITIAL_TENANTS);
+type DoorFlowTemplateProps = {
+  defaultScreen?: "organizer" | "registration" | "checkin";
+  roleName?: string;
+  hideTabs?: boolean;
+};
+
+export default function DoorFlowTemplate({
+  defaultScreen = "organizer",
+  roleName,
+  hideTabs = false,
+}: DoorFlowTemplateProps = {}) {
+  const [tenants, setTenants] = useState<TenantRecord[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = window.localStorage.getItem("zoho_tenants_data");
+        if (stored) return JSON.parse(stored);
+      } catch (err) { }
+    }
+    return INITIAL_TENANTS;
+  });
+
+  // Persist attendees/checkins locally since we split into different routes
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("zoho_tenants_data", JSON.stringify(tenants));
+    }
+  }, [tenants]);
+
   const [activeTenantId, setActiveTenantId] = useState(INITIAL_TENANTS[0].id);
   const [selectedEventId, setSelectedEventId] = useState(
     INITIAL_TENANTS[0].events[0]?.id ?? "",
   );
+  const [activeScreen, setActiveScreen] = useState<"organizer" | "registration" | "checkin">(defaultScreen);
 
   const [eventDraft, setEventDraft] = useState<EventDraft>({
     name: "",
@@ -485,44 +512,76 @@ export default function DoorFlowTemplate() {
         tenants={tenants}
         activeTenantId={activeTenantId}
         onTenantChange={handleTenantChange}
+        roleName={roleName}
       />
 
-      <section className="grid gap-4 xl:grid-cols-[1.2fr_1fr_1fr]">
-        <OrganizerPanel
-          eventDraft={eventDraft}
-          onEventDraftChange={handleEventDraftChange}
-          onCreateEvent={handleCreateEvent}
-          isCreatingEvent={isCreatingEvent}
-          eventNotice={eventNotice}
-          activeTenantShortCode={activeTenant?.shortCode}
-          events={activeTenant?.events ?? []}
-          selectedEventId={effectiveSelectedEventId}
-          onSelectEvent={setSelectedEventId}
-        />
-        <RegistrationPanel
-          selectedEvent={selectedEvent}
-          registrationDraft={registrationDraft}
-          onRegistrationDraftChange={handleRegistrationDraftChange}
-          onRegisterAttendee={handleRegisterAttendee}
-          registrationNotice={registrationNotice}
-        />
-        <CheckinPanel
-          checkinCode={checkinCode}
-          onCheckinCodeChange={setCheckinCode}
-          onCheckin={handleCheckin}
-          checkinNotice={checkinNotice}
-          checkedInCount={checkedInCount}
-          pendingCount={pendingCount}
-        />
-      </section>
+      {!hideTabs && (
+        <div className="mx-auto flex w-full max-w-sm gap-2 rounded-2xl bg-slate-100/80 p-1.5 backdrop-blur-md border border-slate-200 shadow-sm mt-2">
+          {(["organizer", "registration", "checkin"] as const).map((screen) => (
+            <button
+              key={screen}
+              onClick={() => setActiveScreen(screen)}
+              className={`flex-1 rounded-xl px-3 py-2 text-sm font-semibold capitalize transition ${activeScreen === screen
+                ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200/50"
+                : "text-slate-500 hover:text-slate-900 hover:bg-slate-200/50"
+                }`}
+            >
+              {screen}
+            </button>
+          ))}
+        </div>
+      )}
 
-      <RosterSection
-        selectedEventName={selectedEvent?.name}
-        attendeeSearch={attendeeSearch}
-        onAttendeeSearchChange={setAttendeeSearch}
-        attendees={filteredAttendees}
-        checkinLookup={checkinLookup}
-      />
+      {activeScreen === "organizer" && (
+        <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <section className="mx-auto w-full max-w-3xl">
+            <OrganizerPanel
+              eventDraft={eventDraft}
+              onEventDraftChange={handleEventDraftChange}
+              onCreateEvent={handleCreateEvent}
+              isCreatingEvent={isCreatingEvent}
+              eventNotice={eventNotice}
+              activeTenantShortCode={activeTenant?.shortCode}
+              events={activeTenant?.events ?? []}
+              selectedEventId={effectiveSelectedEventId}
+              onSelectEvent={setSelectedEventId}
+            />
+          </section>
+
+          <RosterSection
+            selectedEventName={selectedEvent?.name}
+            attendeeSearch={attendeeSearch}
+            onAttendeeSearchChange={setAttendeeSearch}
+            attendees={filteredAttendees}
+            checkinLookup={checkinLookup}
+          />
+        </div>
+      )}
+
+      {activeScreen === "registration" && (
+        <section className="mx-auto w-full max-w-md animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <RegistrationPanel
+            selectedEvent={selectedEvent}
+            registrationDraft={registrationDraft}
+            onRegistrationDraftChange={handleRegistrationDraftChange}
+            onRegisterAttendee={handleRegisterAttendee}
+            registrationNotice={registrationNotice}
+          />
+        </section>
+      )}
+
+      {activeScreen === "checkin" && (
+        <section className="mx-auto w-full max-w-md animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <CheckinPanel
+            checkinCode={checkinCode}
+            onCheckinCodeChange={setCheckinCode}
+            onCheckin={handleCheckin}
+            checkinNotice={checkinNotice}
+            checkedInCount={checkedInCount}
+            pendingCount={pendingCount}
+          />
+        </section>
+      )}
     </main>
   );
 }

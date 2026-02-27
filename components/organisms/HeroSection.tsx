@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { MetricCard } from "../atoms/MetricCard";
 import { TenantSwitcher } from "../molecules/TenantSwitcher";
 import { TenantRecord } from "../../lib/doorflow/types";
@@ -10,6 +11,7 @@ type HeroSectionProps = {
   tenants: TenantRecord[];
   activeTenantId: string;
   onTenantChange: (tenantId: string) => void;
+  roleName?: string;
 };
 
 export function HeroSection({
@@ -20,6 +22,7 @@ export function HeroSection({
   tenants,
   activeTenantId,
   onTenantChange,
+  roleName,
 }: HeroSectionProps) {
   return (
     <section className="surface-card reveal">
@@ -27,7 +30,7 @@ export function HeroSection({
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-2">
             <p className="inline-flex items-center rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold tracking-[0.2em] text-white">
-              DOORFLOW FRONTEND
+              REGINEXUS
             </p>
             <h1 className="text-balance text-3xl font-semibold leading-tight text-slate-900 md:text-4xl">
               Event registration and check-in that feels instant.
@@ -37,9 +40,26 @@ export function HeroSection({
               console, public registration, and fast check-in in one UX flow.
             </p>
           </div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700">
-            <span className="pulse-dot" />
-            Live demo mode
+          <div className="flex flex-col items-end gap-2">
+            {roleName ? (
+              <>
+                <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700">
+                  <span className="pulse-dot bg-indigo-500" />
+                  Role: {roleName}
+                </div>
+                <Link
+                  href="/"
+                  className="text-sm font-medium text-slate-500 hover:text-indigo-600"
+                >
+                  &larr; Switch Role
+                </Link>
+              </>
+            ) : (
+              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700">
+                <span className="pulse-dot" />
+                Live demo mode
+              </div>
+            )}
           </div>
         </div>
 
