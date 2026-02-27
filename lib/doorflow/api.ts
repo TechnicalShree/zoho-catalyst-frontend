@@ -8,10 +8,6 @@ export type CreateEventPayload = {
   created_at: string;
 };
 
-function buildCreateEventUrl(baseUrl: string): string {
-  return `${baseUrl.replace(/\/+$/, "")}/event/create`;
-}
-
 function getErrorMessage(value: unknown): string | null {
   if (!value || typeof value !== "object") {
     return null;
@@ -25,13 +21,13 @@ function getErrorMessage(value: unknown): string | null {
   return null;
 }
 
+/**
+ * Creates an event by calling our own Next.js API route (`/api/create-event`),
+ * which proxies the request to the Catalyst backend server-side.
+ * This avoids CORS issues since the browser only talks to our own origin.
+ */
 export async function createEvent(payload: CreateEventPayload): Promise<void> {
-  const baseUrl = process.env.NEXT_PUBLIC_CATALYST_BASE_URL;
-  const endpoint = baseUrl
-    ? buildCreateEventUrl(baseUrl)
-    : "https://catalyst-hackathon-915650487.development.catalystserverless.com/event/create";
-
-  const response = await fetch(endpoint, {
+  const response = await fetch("/api/event/create", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
