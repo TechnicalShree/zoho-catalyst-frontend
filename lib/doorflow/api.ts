@@ -1,10 +1,11 @@
 export type CreateEventPayload = {
   name: string;
   starts_at: string;
-  capacity: number;
-  banner_object_url: string;
-  created_by_user_id: string;
 };
+
+function buildCreateEventUrl(baseUrl: string): string {
+  return `${baseUrl.replace(/\/+$/, "")}/create_event`;
+}
 
 function getErrorMessage(value: unknown): string | null {
   if (!value || typeof value !== "object") {
@@ -20,10 +21,14 @@ function getErrorMessage(value: unknown): string | null {
 }
 
 export async function createEvent(payload: CreateEventPayload): Promise<void> {
-  const response = await fetch("/api/create-event", {
+  const baseUrl = process.env.NEXT_PUBLIC_CATALYST_BASE_URL;
+  const endpoint = baseUrl ? buildCreateEventUrl(baseUrl) : "/api/create-event";
+
+  const response = await fetch(endpoint, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Accept: "application/json",
     },
     body: JSON.stringify(payload),
   });

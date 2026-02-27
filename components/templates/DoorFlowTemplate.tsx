@@ -201,9 +201,6 @@ export default function DoorFlowTemplate() {
       await createEventApi({
         name: nextEvent.name,
         starts_at: toCatalystStartsAt(nextEvent.startsAt),
-        capacity: nextEvent.capacity,
-        banner_object_url: "https://example.com/banner.jpg",
-        created_by_user_id: "user_123",
       });
     } catch (error) {
       const message =

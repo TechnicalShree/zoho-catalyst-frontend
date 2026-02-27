@@ -22,16 +22,16 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 ## Catalyst create_event API
 
-The organizer form calls `POST /api/create-event`, which proxies to your Catalyst API Gateway `create_event` endpoint.
-
-Set the endpoint URL in your environment:
+The organizer form calls your Catalyst API Gateway `create_event` endpoint using:
 
 ```bash
-CATALYST_CREATE_EVENT_URL=https://<your-domain>/create_event
+NEXT_PUBLIC_CATALYST_BASE_URL=https://<your-domain>
 ```
 
+The app appends `/create_event` automatically.
+
 The create call sends:
-`name`, `starts_at`, `capacity`, `banner_object_url`, `created_by_user_id`.
+`name`, `starts_at`.
 
 ## Learn More
 

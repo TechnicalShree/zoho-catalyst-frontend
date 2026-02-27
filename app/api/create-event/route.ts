@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 
+function buildCreateEventUrl(baseUrl: string): string {
+  return `${baseUrl.replace(/\/+$/, "")}/create_event`;
+}
+
 export async function POST(request: Request) {
   let payload: unknown;
 
@@ -12,13 +16,20 @@ export async function POST(request: Request) {
     );
   }
 
-  const endpoint = process.env.CATALYST_CREATE_EVENT_URL;
-  if (!endpoint) {
+  const baseUrl =
+    process.env.CATALYST_BASE_URL ??
+    process.env.NEXT_PUBLIC_CATALYST_BASE_URL;
+  if (!baseUrl) {
     return NextResponse.json(
-      { message: "Missing CATALYST_CREATE_EVENT_URL environment variable." },
+      {
+        message:
+          "Missing CATALYST_BASE_URL or NEXT_PUBLIC_CATALYST_BASE_URL environment variable.",
+      },
       { status: 500 },
     );
   }
+
+  const endpoint = buildCreateEventUrl(baseUrl);
 
   try {
     const upstreamResponse = await fetch(endpoint, {
