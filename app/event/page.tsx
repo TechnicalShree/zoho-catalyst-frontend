@@ -53,11 +53,12 @@ export default function EventListingPage() {
             month,
             day,
             title: event.name || "Untitled Event",
-            status: "Active" as const, // Draft logic can be added later if needed
-            location: event.venue || "TBD Location", // API didn't have venue, set fallback
+            status: "Active" as const,
+            location: event.venue || "TBD Location",
             metricLabel: "Registration",
             metricCurrent: currentRegistrations,
             metricTotal: capacity,
+            slug: event.slug || "",
         };
     };
 
@@ -123,8 +124,8 @@ export default function EventListingPage() {
                             </div>
                         ) : (
                             events.map((event, idx) => {
-                                const cardProps = formatEventForCard(event);
-                                return <EventCard key={event.id || idx} {...cardProps} />;
+                                const { slug, ...cardProps } = formatEventForCard(event);
+                                return <EventCard key={idx} {...cardProps} href={`/event/${slug}`} />;
                             })
                         )}
                     </div>
