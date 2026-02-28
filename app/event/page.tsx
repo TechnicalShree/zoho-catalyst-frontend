@@ -1,37 +1,14 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { Search, Bell, Plus, LayoutGrid, Loader2 } from "lucide-react";
 import { EventCard } from "../../components/molecules/EventCard";
-import { getEvents } from "../../lib/doorflow/api";
-import { EventRecord } from "../../lib/doorflow/types";
+import { useEvents } from "../../hooks/useEvents";
 
 export default function EventListingPage() {
-    const [events, setEvents] = useState<EventRecord[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const { data: events = [], isLoading: loading, error } = useEvents();
 
-    useEffect(() => {
-        async function fetchEvents() {
-            try {
-                const res = await fetch("https://catalyst-hackathon-915650487.development.catalystserverless.com/event");
-                if (!res.ok) {
-                    throw new Error(`Failed to fetch: ${res.status} ${res.statusText}`);
-                }
-                const json = await res.json();
-                const data = json.data || json;
-
-                // Assuming data is an array of EventRecord
-                setEvents((Array.isArray(data) ? data : []) as EventRecord[]);
-            } catch (err) {
-                setError(err instanceof Error ? err.message : "Failed to load events");
-            } finally {
-                setLoading(false);
-            }
-        }
-        fetchEvents();
-    }, []);
 
     const formatEventForCard = (rawItem: any) => {
         const event = rawItem.Events || rawItem;
@@ -116,7 +93,7 @@ export default function EventListingPage() {
                             </div>
                         ) : error ? (
                             <div className="p-4 bg-red-50 text-red-600 text-sm font-semibold rounded-2xl border border-red-200">
-                                {error}
+                                {error?.message || "Failed to load events"}
                             </div>
                         ) : events.length === 0 ? (
                             <div className="p-8 text-center text-slate-500 font-medium">

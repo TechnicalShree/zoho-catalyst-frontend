@@ -4,12 +4,12 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, Calendar, CalendarDays, Users, ImagePlus } from "lucide-react";
-import { createEvent } from "../../../lib/doorflow/api";
-import { createId, normalizeSlug } from "../../../lib/doorflow/utils";
+import { useCreateEvent } from "../../../hooks/useEvents";
+import { normalizeSlug } from "../../../lib/doorflow/utils";
 
 export default function CreateEventPage() {
     const router = useRouter();
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const createEventMutation = useCreateEvent();
 
     const [name, setName] = useState("");
     const [venue, setVenue] = useState("");
@@ -27,28 +27,28 @@ export default function CreateEventPage() {
             return;
         }
 
-        setIsSubmitting(true);
         setError("");
+        const finalSlug = slug.trim() ? normalizeSlug(slug) : normalizeSlug(name);
 
-        try {
-            const finalSlug = slug.trim() ? normalizeSlug(slug) : normalizeSlug(name);
-
-            await createEvent({
+        createEventMutation.mutate(
+            {
                 slug: finalSlug,
                 name: name.trim(),
                 starts_at: startsAt ? new Date(startsAt).toISOString() : new Date().toISOString(),
                 capacity: parseInt(capacity, 10) || 100,
                 banner_object_url: "",
-                created_by_user_id: "org-nova", // Mocking active tenant
+                created_by_user_id: "org-nova",
                 created_at: new Date().toISOString(),
-            });
-
-            router.push("/event");
-        } catch (err) {
-            setError(err instanceof Error ? err.message : "Failed to create event");
-            setIsSubmitting(false);
-        }
+            },
+            {
+                onSuccess: () => router.push("/event"),
+                onError: (err) =>
+                    setError(err instanceof Error ? err.message : "Failed to create event"),
+            }
+        );
     };
+
+    const isSubmitting = createEventMutation.isPending;
 
     return (
         <div className="min-h-screen bg-[#f4f7fa] text-slate-900 pb-12 font-sans">
