@@ -15,9 +15,15 @@ export default function EventListingPage() {
     useEffect(() => {
         async function fetchEvents() {
             try {
-                const data = await getEvents();
+                const res = await fetch("https://catalyst-hackathon-915650487.development.catalystserverless.com/event");
+                if (!res.ok) {
+                    throw new Error(`Failed to fetch: ${res.status} ${res.statusText}`);
+                }
+                const json = await res.json();
+                const data = json.data || json;
+
                 // Assuming data is an array of EventRecord
-                setEvents(data as EventRecord[]);
+                setEvents((Array.isArray(data) ? data : []) as EventRecord[]);
             } catch (err) {
                 setError(err instanceof Error ? err.message : "Failed to load events");
             } finally {
