@@ -1,11 +1,9 @@
 "use client";
 
 import { FormEvent, useMemo, useState, useEffect } from "react";
-import { HeroSection } from "../organisms/HeroSection";
 import { OrganizerPanel } from "../organisms/OrganizerPanel";
 import { RegistrationPanel } from "../organisms/RegistrationPanel";
 import { CheckinPanel } from "../organisms/CheckinPanel";
-import { RosterSection } from "../organisms/RosterSection";
 import { DEFAULT_EVENT_STARTS_AT, INITIAL_TENANTS } from "../../lib/doorflow/constants";
 import { createEvent as createEventApi, getEvents as getEventsApi } from "../../lib/doorflow/api";
 import {
@@ -513,16 +511,7 @@ export default function DoorFlowTemplate({
         <div className="orb orb-two" />
       </div>
 
-      <HeroSection
-        activeTenantShortCode={activeTenant?.shortCode}
-        totalEventsForTenant={totalEventsForTenant}
-        checkedInCount={checkedInCount}
-        occupancy={occupancy}
-        tenants={tenants}
-        activeTenantId={activeTenantId}
-        onTenantChange={handleTenantChange}
-        roleName={roleName}
-      />
+
 
       {!hideTabs && (
         <div className="mx-auto flex w-full max-w-sm gap-2 rounded-2xl bg-slate-100/80 p-1.5 backdrop-blur-md border border-slate-200 shadow-sm mt-2">
@@ -556,14 +545,6 @@ export default function DoorFlowTemplate({
               onSelectEvent={setSelectedEventId}
             />
           </section>
-
-          <RosterSection
-            selectedEventName={selectedEvent?.name}
-            attendeeSearch={attendeeSearch}
-            onAttendeeSearchChange={setAttendeeSearch}
-            attendees={filteredAttendees}
-            checkinLookup={checkinLookup}
-          />
         </div>
       )}
 
