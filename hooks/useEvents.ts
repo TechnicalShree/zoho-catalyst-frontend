@@ -4,20 +4,21 @@ import {
     getEventBySlug,
     createEvent,
     CreateEventPayload,
+    EventListResponse,
 } from "../services/eventService";
 
 export const eventKeys = {
-    all: ["events"] as const,
-    detail: (slug: string) => ["events", slug] as const,
+    all: (limit: number, offset: number, search: string) => ["events", { limit, offset, search }] as const,
+    detail: (slug: string) => ["events", "detail", slug] as const,
 };
 
 /**
- * Hook to fetch all events.
+ * Hook to fetch paginated events with optional search.
  */
-export function useEvents() {
-    return useQuery({
-        queryKey: eventKeys.all,
-        queryFn: getEvents,
+export function useEvents(limit = 10, offset = 0, search = "") {
+    return useQuery<EventListResponse>({
+        queryKey: eventKeys.all(limit, offset, search),
+        queryFn: () => getEvents(limit, offset, search),
     });
 }
 
@@ -41,7 +42,8 @@ export function useCreateEvent() {
     return useMutation({
         mutationFn: (payload: CreateEventPayload) => createEvent(payload),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: eventKeys.all });
+            // Invalidate all event list queries
+            queryClient.invalidateQueries({ queryKey: ["events"] });
         },
     });
 }

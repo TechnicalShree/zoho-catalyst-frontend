@@ -79,10 +79,8 @@ export async function GET(request: Request) {
     const requestedSlug = incomingUrl.searchParams.get("slug");
     const endpoint = new URL(buildEventUrl());
 
+    // Forward all query params (including slug) to the backend
     incomingUrl.searchParams.forEach((value, key) => {
-        if (key === "slug") {
-            return;
-        }
         endpoint.searchParams.append(key, value);
     });
 
@@ -115,16 +113,16 @@ export async function GET(request: Request) {
             );
         }
 
+        // For slug lookups, extract the event from the backend response
         if (requestedSlug) {
-            const matchingEvent = findEventBySlug(upstreamBody, requestedSlug);
-            if (!matchingEvent) {
+            const items = getUpstreamEventItems(upstreamBody);
+            if (!items || items.length === 0) {
                 return NextResponse.json(
                     { message: `Event not found for slug "${requestedSlug}".` },
                     { status: 404 },
                 );
             }
-
-            return NextResponse.json(matchingEvent);
+            return NextResponse.json(items[0]);
         }
 
         return NextResponse.json(upstreamBody ?? []);

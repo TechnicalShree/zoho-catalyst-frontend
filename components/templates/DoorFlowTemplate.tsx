@@ -5,7 +5,7 @@ import { OrganizerPanel } from "../organisms/OrganizerPanel";
 import { RegistrationPanel } from "../organisms/RegistrationPanel";
 import { CheckinPanel } from "../organisms/CheckinPanel";
 import { DEFAULT_EVENT_STARTS_AT, INITIAL_TENANTS } from "../../lib/doorflow/constants";
-import { createEvent as createEventApi, getEvents as getEventsApi } from "../../lib/doorflow/api";
+import { createEvent as createEventApi, getEvents as getEventsApi } from "../../services/eventService";
 import {
   CheckinRecord,
   EventDraft,
@@ -83,10 +83,11 @@ export default function DoorFlowTemplate({
     let active = true;
     async function fetchServerEvents() {
       try {
-        const rawList = await getEventsApi();
+        const response = await getEventsApi();
         if (!active) return;
 
-        const validEvents = (rawList as any[]).map((row: any) => {
+        const rawList = response.data || [];
+        const validEvents = rawList.map((row: any) => {
           const ev = row.Events || row;
           return {
             id: String(ev.ROWID || ev.id || createId("evt")),

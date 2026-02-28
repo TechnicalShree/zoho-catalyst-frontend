@@ -28,27 +28,49 @@ export type CatalystEvent = {
 export type EventListResponse = {
     status: string;
     data: Array<{ Events: CatalystEvent }>;
+    total_count: number;
+    limit: number;
+    offset: number;
+};
+
+export type EventDetailResponse = {
+    status: string;
+    data: { Events: CatalystEvent };
 };
 
 /**
- * Fetch all events.
+ * Fetch paginated events.
  */
-export async function getEvents(): Promise<EventListResponse["data"]> {
-    const { data } = await api.get<EventListResponse>("/event");
-    return data.data || [];
+export async function getEvents(
+    limit = 10,
+    offset = 0,
+    search = ""
+): Promise<EventListResponse> {
+    const params: Record<string, any> = { limit, offset };
+    if (search.trim()) {
+        params.search = search.trim();
+    }
+    const { data } = await api.get<EventListResponse>("/event", { params });
+    return data;
 }
 
 /**
- * Fetch a single event by slug.
+ * Fetch a single event by slug (query param).
  */
-export async function getEventBySlug(slug: string) {
-    const { data } = await api.get(`/event/${slug}`);
-    return data.data;
+export async function getEventBySlug(
+    slug: string
+): Promise<CatalystEvent> {
+    const { data } = await api.get<EventDetailResponse>("/event", {
+        params: { slug },
+    });
+    return data.data.Events;
 }
 
 /**
  * Create a new event.
  */
-export async function createEvent(payload: CreateEventPayload): Promise<void> {
+export async function createEvent(
+    payload: CreateEventPayload
+): Promise<void> {
     await api.post("/event", payload);
 }
