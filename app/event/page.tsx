@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { Search, Bell, Plus, LayoutGrid, Loader2 } from "lucide-react";
 import { EventCard } from "../../components/molecules/EventCard";
 import { getEvents } from "../../lib/doorflow/api";
@@ -59,12 +60,12 @@ export default function EventListingPage() {
             <div className="max-w-md mx-auto relative pt-4">
                 {/* Header */}
                 <header className="flex justify-between items-center px-4 mb-6">
-                    <div className="flex items-center gap-2">
+                    <Link href="/organizer" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                         <div className="w-6 h-6 bg-blue-600 rounded flex items-center justify-center text-white">
                             <LayoutGrid className="w-4 h-4" />
                         </div>
                         <span className="font-bold text-lg tracking-tight">RegiNexus</span>
-                    </div>
+                    </Link>
                     <div className="flex items-center gap-3">
                         <button className="p-2 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors relative">
                             <Bell className="w-5 h-5 text-slate-600" />
@@ -82,10 +83,10 @@ export default function EventListingPage() {
                 <main className="px-4">
                     <div className="flex justify-between items-center mb-6">
                         <h1 className="text-2xl font-bold tracking-tight">My Events</h1>
-                        <button className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-4 py-2 rounded-xl transition-colors shrink-0">
+                        <Link href="/event/create" className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-4 py-2 rounded-xl transition-colors shrink-0">
                             <Plus className="w-4 h-4" strokeWidth={2.5} />
                             Create Event
-                        </button>
+                        </Link>
                     </div>
 
 
