@@ -5,6 +5,10 @@ const CATALYST_BASE_URL =
     process.env.NEXT_PUBLIC_CATALYST_BASE_URL ??
     "https://catalyst-hackathon-915650487.development.catalystserverless.com";
 
+type UpstreamEventItem = {
+    Events?: Record<string, unknown>;
+};
+
 function buildEventUrl(): string {
     return `${CATALYST_BASE_URL.replace(/\/+$/, "")}/event`;
 }
@@ -19,14 +23,66 @@ async function parseUpstreamResponse(response: Response): Promise<unknown> {
     }
 }
 
+function getUpstreamEventItems(body: unknown): UpstreamEventItem[] {
+    if (Array.isArray(body)) {
+        return body as UpstreamEventItem[];
+    }
+
+    if (body && typeof body === "object") {
+        const data = (body as { data?: unknown }).data;
+        if (Array.isArray(data)) {
+            return data as UpstreamEventItem[];
+        }
+    }
+
+    return [];
+}
+
+function findEventBySlug(body: unknown, slug: string): UpstreamEventItem | null {
+    const normalizedSlug = slug.trim().toLowerCase();
+    if (!normalizedSlug) {
+        return null;
+    }
+
+    const eventItems = getUpstreamEventItems(body);
+
+    for (const item of eventItems) {
+        const eventRecord =
+            item.Events && typeof item.Events === "object"
+                ? item.Events
+                : (item as Record<string, unknown>);
+
+        const eventSlug = typeof eventRecord.slug === "string" ? eventRecord.slug : null;
+        const eventId =
+            typeof eventRecord.ROWID === "string"
+                ? eventRecord.ROWID
+                : typeof eventRecord.id === "string"
+                    ? eventRecord.id
+                    : null;
+
+        if (
+            (eventSlug && eventSlug.toLowerCase() === normalizedSlug) ||
+            (eventId && eventId === slug)
+        ) {
+            return item;
+        }
+    }
+
+    return null;
+}
+
 /**
- * GET /api/event → proxies to GET <Catalyst>/event and forwards query params.
+ * GET /api/event → proxies to GET <Catalyst>/event and resolves slug lookups locally.
  */
 export async function GET(request: Request) {
-    const endpoint = new URL(buildEventUrl());
     const incomingUrl = new URL(request.url);
+    const requestedSlug = incomingUrl.searchParams.get("slug");
+    const endpoint = new URL(buildEventUrl());
 
     incomingUrl.searchParams.forEach((value, key) => {
+        if (key === "slug") {
+            return;
+        }
         endpoint.searchParams.append(key, value);
     });
 
@@ -57,6 +113,18 @@ export async function GET(request: Request) {
                 },
                 { status: upstreamResponse.status },
             );
+        }
+
+        if (requestedSlug) {
+            const matchingEvent = findEventBySlug(upstreamBody, requestedSlug);
+            if (!matchingEvent) {
+                return NextResponse.json(
+                    { message: `Event not found for slug "${requestedSlug}".` },
+                    { status: 404 },
+                );
+            }
+
+            return NextResponse.json(matchingEvent);
         }
 
         return NextResponse.json(upstreamBody ?? []);

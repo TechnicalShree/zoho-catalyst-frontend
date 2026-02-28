@@ -18,7 +18,7 @@ type EventRecord = {
 export default function EventDetailsPage({
     params,
 }: {
-    params: { id: string };
+    params: { slug: string };
 }) {
     const [eventData, setEventData] = useState<EventRecord | null>(null);
     const [loading, setLoading] = useState(true);
@@ -27,7 +27,9 @@ export default function EventDetailsPage({
     useEffect(() => {
         async function fetchEventDetails() {
             try {
-                const response = await fetch(`/api/event?id=${params.id}`);
+                const response = await fetch(
+                    `/api/event?slug=${encodeURIComponent(params.slug)}`,
+                );
                 if (!response.ok) {
                     throw new Error("Failed to fetch event details");
                 }
@@ -57,7 +59,7 @@ export default function EventDetailsPage({
         }
 
         fetchEventDetails();
-    }, [params.id]);
+    }, [params.slug]);
 
     return (
         <main className="relative mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-6 px-4 py-8 md:px-8 md:py-12">
@@ -94,7 +96,7 @@ export default function EventDetailsPage({
                                         {eventData.name || eventData.eventName || "Untitled Event"}
                                     </h1>
                                     <p className="mt-2 inline-flex items-center rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold tracking-[0.2em] text-white">
-                                        {eventData.slug || "NO SLUG"}
+                                        {eventData.slug || params.slug || "NO SLUG"}
                                     </p>
                                 </div>
                                 {/* Visual date block */}
@@ -129,7 +131,7 @@ export default function EventDetailsPage({
                                         Event ID
                                     </p>
                                     <p className="mt-1 text-sm font-medium text-slate-800 break-all font-mono">
-                                        {eventData.ROWID || eventData.id || params.id}
+                                        {eventData.ROWID || eventData.id || params.slug}
                                     </p>
                                 </div>
                             </div>
@@ -143,7 +145,7 @@ export default function EventDetailsPage({
                                 <p className="text-sm text-indigo-700 mt-1">Share this link to allow guests to register.</p>
                             </div>
                             <Link
-                                href={`/registration?event=${eventData.ROWID || eventData.id || params.id}`}
+                                href={`/registration?event=${eventData.ROWID || eventData.id || params.slug}`}
                                 className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm hover:bg-indigo-700 transition"
                             >
                                 Go to Registration

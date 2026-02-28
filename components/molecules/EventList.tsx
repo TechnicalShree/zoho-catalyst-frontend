@@ -44,7 +44,7 @@ export function EventList({
               </p>
             </button>
             <Link
-              href={`/event/${eventItem.id}`}
+              href={`/event/${eventItem.slug || eventItem.id}`}
               className={`mt-3 self-end text-xs font-semibold px-3 py-1.5 rounded-lg border transition ${isCurrent
                 ? "bg-slate-800 border-slate-700 text-white hover:bg-slate-700"
                 : "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200"
