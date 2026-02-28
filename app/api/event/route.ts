@@ -20,17 +20,29 @@ async function parseUpstreamResponse(response: Response): Promise<unknown> {
 }
 
 /**
- * GET /api/event → proxies to GET <Catalyst>/event (list all events)
+ * GET /api/event → proxies to GET <Catalyst>/event and forwards query params.
  */
-export async function GET() {
-    const endpoint = buildEventUrl();
+export async function GET(request: Request) {
+    const endpoint = new URL(buildEventUrl());
+    const incomingUrl = new URL(request.url);
+
+    incomingUrl.searchParams.forEach((value, key) => {
+        endpoint.searchParams.append(key, value);
+    });
 
     try {
+        const upstreamHeaders: Record<string, string> = {
+            Accept: "application/json",
+        };
+
+        const cookieHeader = request.headers.get("cookie");
+        if (cookieHeader) {
+            upstreamHeaders["Cookie"] = cookieHeader;
+        }
+
         const upstreamResponse = await fetch(endpoint, {
             method: "GET",
-            headers: {
-                Accept: "application/json",
-            },
+            headers: upstreamHeaders,
             cache: "no-store",
         });
 
@@ -75,11 +87,18 @@ export async function POST(request: Request) {
     const endpoint = buildEventUrl();
 
     try {
+        const upstreamHeaders: Record<string, string> = {
+            "Content-Type": "application/json",
+        };
+
+        const cookieHeader = request.headers.get("cookie");
+        if (cookieHeader) {
+            upstreamHeaders["Cookie"] = cookieHeader;
+        }
+
         const upstreamResponse = await fetch(endpoint, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: upstreamHeaders,
             body: JSON.stringify(payload),
             cache: "no-store",
         });

@@ -18,7 +18,6 @@ export default function LoginPage() {
         const timer = setInterval(() => {
             if (window.catalyst && window.catalyst.auth && loginDivRef.current) {
                 clearInterval(timer);
-
                 const config = {
                     service_url: "/", // Provide redirect URL here
                 };

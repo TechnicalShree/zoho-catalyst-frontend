@@ -43,6 +43,11 @@ export default function DoorFlowTemplate({
     return INITIAL_TENANTS;
   });
 
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   // Persist attendees/checkins locally since we split into different routes
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -495,6 +500,10 @@ export default function DoorFlowTemplate({
     if (nextNotice.tone === "success") {
       setCheckinCode("");
     }
+  }
+
+  if (!isMounted) {
+    return null;
   }
 
   return (

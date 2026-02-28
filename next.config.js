@@ -19,6 +19,10 @@ const nextConfig = {
                 destination: `${process.env.NEXT_PUBLIC_API_URL}/__catalyst/:path*`,
             },
             {
+                source: "/_catalyst/:path*",
+                destination: `${process.env.NEXT_PUBLIC_API_URL}/_catalyst/:path*`,
+            },
+            {
                 source: "/baas/:path*",
                 destination: `${process.env.NEXT_PUBLIC_API_URL}/baas/:path*`,
             },
